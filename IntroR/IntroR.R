@@ -313,6 +313,54 @@ print(load("carsUCI.RData"))
 rm(list=ls()) # Esborra el workspace
 loadedDS <- get(load("carsUCI.RData"))
 
+#### ESTADÍSTICA DESCRIPTIVA ####
+airquality
+?airquality
+
+## Estadístics habituals
+summary(airquality)
+
+mean(airquality) # No OK
+mean(airquality$Ozone) # Compte amb NA's
+mean(airquality$Ozone, na.rm = TRUE)
+median(airquality$Ozone, na.rm = TRUE)
+
+# Càlcul de quantils
+quantile(airquality$Ozone, na.rm = TRUE, c(0.25, 0.5, 0.75))
+
+# Dispersió
+sd(airquality$Ozone, na.rm = TRUE)
+var(airquality$Ozone, na.rm = TRUE)
+IQR(airquality$Ozone, na.rm = TRUE)
+
+## Taules de freqüències
+table(airquality$Month)
+table(airquality$Ozone) # No OK
+table(airquality$Ozone > mean(airquality$Ozone, na.rm = TRUE)) 
+table(airquality$Ozone > mean(airquality$Ozone, na.rm = TRUE), airquality$Month)
+
+## Regressió Lineal
+mod1 <- lm(Temp ~ Wind, data = airquality)
+summary(mod1)
+
+## Ús de funcionals
+apply(airquality, 2, mean, na.rm = TRUE)
+tapply(airquality$Ozone, airquality$Month, mean, na.rm = TRUE)
+
+
+### GRÀFICS HABITUALS ####
+
+# Per una variable
+hist(airquality$Wind) # Histograma
+boxplot(airquality$Wind) # Diagrama de caixa
+boxplot(airquality$Wind ~ airquality$Month) # o més d'una
+
+# Per a dues variables
+plot(airquality$Wind, airquality$Temp) # Gràfic de dispersió
+abline(mod1, col = "red") # Afegim la recta de regressió
+
+pairs(airquality[,1:4]) # Matriu de gràfics de dispersió
+
 
 #### EXERCICIS #### 
 # A partir del conjunt de dades "Davis"...
@@ -324,48 +372,26 @@ ds <- Davis
 help("Davis",package="car")
 
 # 1- Quin tipus de dades tenim?
-class(ds)
 
 # 2- Quins camps/columnes conté? A quin tipus de dades correspon cada una de elles?
-str(ds)
 
-# 3- Quin és el pes mitjà i pes mitjà autoinformat?
-mean(ds$weight)
-mean(ds$repwt,na.rm=TRUE)
+# 3- Quin és el pes mitjà i pes mitjà autoinformat? I per cada gènere?
 
 # 4- Quin és la mitjana de les diferències entre pes i pes autoinformat?
-mean(ds$weight-ds$repwt,na.rm=TRUE)
-mean(ds[!is.na(ds$repwt),"weight"])-mean(ds$repwt,na.rm=TRUE)
 
-# 5- Quantes dones hi ha en el conjunt de dades? I homes?
-sum(ds$sex=="F")
-sum(ds$sex=="M")
-table(ds$sex)
+# 5- Feu un diagrama de caixa per al pes d'homes i de dones
 
-# 6- Quin és l'individu que presenta un IMC més baix? I el més alt?
+# 6- Quantes dones hi ha en el conjunt de dades? I homes?
+
+# 7- Quin és l'individu que presenta un IMC més baix? I el més alt?
 # NOTA: L'IMC es calcula com pes (en kg) entre alçada (en m) al quadrat
-ds$imc <- ds$weight / (ds$height / 100) ^ 2
-sort(ds$imc)
-min(ds$imc)
-max(ds$imc)
-ds[which.max(ds$imc),]
-max(ds$imc[-12])
 
-# 7- Quin és la mitjana de les diferències entre pes i pes autoinformat per
+# 8- Quin és la mitjana de les diferències entre pes i pes autoinformat per
 # per a les dones? I per als homes?
-dsF <- ds[ds$sex=="F",]
-mean(dsF$weight-dsF$repwt,na.rm=TRUE)
 
-dsM <- ds[ds$sex=="M",]
-mean(dsM$weight-dsM$repwt,na.rm=TRUE)
-
-
-# 8- Quin és la mitjana de les diferències entre pes i pes autoinformat
+# 9- Quin és la mitjana de les diferències entre pes i pes autoinformat
 # per a les dones que pesen més que la mediana? I per a les que pesen menys?
-weightFmed <- median(dsF$weight)
-dsFM <- dsF[dsF$weight>weightFmed,]
-dsFm <- dsF[dsF$weight<weightFmed,]
 
-mean(dsFM$weight-dsFM$repwt,na.rm=TRUE)
-mean(dsFm$weight-dsFm$repwt,na.rm=TRUE)
+# 10- Feu un diagrama de dispersió de l'alçada i del pes, de manera que les dades 
+# d'homes i de dones surtin de colors diferents. Afegiu la recta de regressió.
 
