@@ -6,11 +6,21 @@
 ##=========================================================================##
 
 #### ACCÉS A L'AJUDA #### 
-# Cercar ajuda sobre una funció
-? "vector"
-# Cercar un text als documents de l'ajuda
-?? "data types"
+# Cercar una pàgina d'ajuda (títols, sobre una funció, objecte...)
+# Retorna una pàgina d'ajuda
+? "NULL"
+? "mean"
 # A RStudio, es pot seleccionar i prémer F1
+
+# Cercar un text dins dels documents d'ajuda (pàgines d'ajuda, manuals...)
+# Retorna llista de documents
+?? "data types"
+?? "mean"
+
+# Accedir a la documentació d'un paquet
+help(package="stats")
+
+# La cerca es fa en els paquets instal·lats.
 
 
 #### DADES BÀSIQUES #### 
@@ -33,6 +43,8 @@ a/b
 n <- as.integer(1)
 n <- as.integer(340000)
 class(n)
+n <- 20L
+class(n)
 
 # En operar un integer es converteix en numeric
 class(n + 1)
@@ -40,7 +52,9 @@ class(n + 1)
 ## Character
 a <- "aaa"
 b <- "bbb"
+paste(a, b, "hola")
 paste(a, b, "hola", sep = ", ")
+paste(a, b, "hola", sep = "")
 
 ## Logical 
 a <- 3 == 2 # Comparació igualtat
@@ -106,21 +120,22 @@ b
 length(a)
 a[[3]]
 b[[3]]
+b[3]
 b[[3]][1]
-str(b)
-unlist(b)
 str(b)
 
 ## Factor
 a <- c("hola", "adeu","hola", "adeu", "adeu", "bye")
 a
-b <- as.factor(a)
+b <- as.factor(a)   # factor(a) fa el mateix
 b
 as.character(b)
 as.numeric(b)
 str(b)
+str(a)
 
 a <- factor(c(3, 1, 3, 1, 1, 2), labels = c("adeu", "bye", "hola"))
+# as.factor no serviria
 a
 levels(a)
 
@@ -135,6 +150,10 @@ str(notes)
 notes <- factor(notes,
                 levels = c("Insuficient", "Aprovat", "Notable", "Excel·lent"),
                 ordered = TRUE)
+# Compte amb la diferència entre labels (el vector és d'índexs)
+# i levels (el vector és de cadenes de text).
+# ordered = FALSE per defecte
+
 str(notes)
 levels(notes)
 
@@ -244,9 +263,30 @@ dfTest1
 dfTest2
 
 
-#### ELIMINAR UNA VARIABLE #### 
+#### EXERCICIS 1 #### 
+# A partir del conjunt de dades "Davis"...
+if (!require("car")) {
+  install.packages("car")
+  library("car")
+}
+ds <- Davis
+help("Davis",package="car")
+
+# 1- Quin tipus de dades tenim?
+
+# 2- Quins camps/columnes conté? A quin tipus de dades correspon cada una de elles?
+
+# 3- Quin és el pes mitjà i pes mitjà autoinformat? I per cada gènere?
+
+# 4- Quin és la mitjana de les diferències entre pes i pes autoinformat?
+
+# 5- Quantes dones hi ha en el conjunt de dades? I homes?
+
+
+#### ELIMINAR OBJECTES #### 
 dfTest2 <- NULL
 rm(dfTest2)
+rm(list = ls())
 
 
 #### CONSTANTS #### 
@@ -362,8 +402,8 @@ abline(mod1, col = "red") # Afegim la recta de regressió
 pairs(airquality[,1:4]) # Matriu de gràfics de dispersió
 
 
-#### EXERCICIS #### 
-# A partir del conjunt de dades "Davis"...
+#### EXERCICIS 2 #### 
+# Seguim amb el conjunt de dades "Davis"...
 if (!require("car")) {
   install.packages("car")
   library("car")
@@ -371,17 +411,7 @@ if (!require("car")) {
 ds <- Davis
 help("Davis",package="car")
 
-# 1- Quin tipus de dades tenim?
-
-# 2- Quins camps/columnes conté? A quin tipus de dades correspon cada una de elles?
-
-# 3- Quin és el pes mitjà i pes mitjà autoinformat? I per cada gènere?
-
-# 4- Quin és la mitjana de les diferències entre pes i pes autoinformat?
-
-# 5- Feu un diagrama de caixa per al pes d'homes i de dones
-
-# 6- Quantes dones hi ha en el conjunt de dades? I homes?
+# 6- Feu un diagrama de caixa per al pes d'homes i de dones
 
 # 7- Quin és l'individu que presenta un IMC més baix? I el més alt?
 # NOTA: L'IMC es calcula com pes (en kg) entre alçada (en m) al quadrat

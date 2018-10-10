@@ -25,13 +25,23 @@ aggregate(ds$repwt,list(ds$sex),mean,na.rm=TRUE)
 mean(ds$weight-ds$repwt,na.rm=TRUE)
 mean(ds[!is.na(ds$repwt),"weight"])-mean(ds$repwt,na.rm=TRUE)
 
-# 5- Feu un diagrama de caixa per al pes d'homes i de dones
-boxplot(ds$weight~ds$sex)
-
-# 6- Quantes dones hi ha en el conjunt de dades? I homes?
+# 5- Quantes dones hi ha en el conjunt de dades? I homes?
 sum(ds$sex=="F")
 sum(ds$sex=="M")
 table(ds$sex)
+
+
+#### EXERCICIS 2 #### 
+# Seguim amb el conjunt de dades "Davis"...
+if (!require("car")) {
+  install.packages("car")
+  library("car")
+}
+ds <- Davis
+help("Davis",package="car")
+
+# 6- Feu un diagrama de caixa per al pes d'homes i de dones
+boxplot(ds$weight~ds$sex)
 
 # 7- Quin és l'individu que presenta un IMC més baix? I el més alt?
 # NOTA: L'IMC es calcula com pes (en kg) entre alçada (en m) al quadrat
