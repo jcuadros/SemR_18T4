@@ -1,7 +1,7 @@
 ##=========================================================================##
 ##                                                                         ##
 ##  Seminari d'introducció a R                                             ##
-##  @authors: Jordi Cuadros, Francesc Martori, Vanessa Serrano             ##
+##  @authors: Jordi Cuadros, Vanessa Serrano, Francesc Martori             ##
 ##                                                                         ##
 ##=========================================================================##
 
