@@ -270,7 +270,7 @@ if (!require("car")) {
   library("car")
 }
 ds <- Davis
-help("Davis",package="car")
+help("Davis",package="carData")
 
 # 1- Quin tipus de dades tenim?
 
@@ -409,7 +409,7 @@ if (!require("car")) {
   library("car")
 }
 ds <- Davis
-help("Davis",package="car")
+help("Davis",package="carData")
 
 # 6- Feu un diagrama de caixa per al pes d'homes i de dones
 
