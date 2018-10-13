@@ -48,7 +48,7 @@ toupper(paraules)
 "a" == "a "
 c("a") == c("a", "A")
 letters[order(letters, decreasing = T)]
-letters2 <- c(letters, toupper(letters))
+letters2 <- c(letters, toupper(letters), letters)
 letters2[order(letters2, decreasing = T)]  # order uses lexicographical order
 
 ## Entendre la codificació de caràcters ####
@@ -89,6 +89,8 @@ Encoding(text3)
 
 c(sapply(text3,charToRaw))
 
+Encoding("hola")
+
 
 #### INTRODUCCIÓ A LES EXPRESSIONS REGULARS ####
 ## Cerca i substitució a R ####
@@ -101,8 +103,11 @@ gsub("a", "_", paraules, fixed=TRUE)
 
 grepl("amb", paraules, fixed=TRUE)    # grep és semblant
 paraules == "amb"
+grep("amb", paraules, fixed=TRUE)    
 
 regexec("amb", text1, fixed=TRUE)     # regexpr i gregexpr són semblants
+regexec("a", text1, fixed=TRUE)
+gregexpr("a", text1, fixed=TRUE)
 
 trobat <- regexec("amb", text1, fixed=TRUE)
 substr(text1, trobat[[1]], trobat[[1]] + attr(trobat[[1]], "match.length") - 1)
@@ -110,6 +115,7 @@ substr(text1, trobat[[1]], trobat[[1]] + attr(trobat[[1]], "match.length") - 1)
 trobat <- regexec("t", paraules, fixed=TRUE)
 trobat
 trobat <- sapply(trobat, getElement, 1) != -1
+paraules[trobat]
 
 ## Expressions regulars ####
 # Les expressions regulars permeten anar més enllà de les cerques de
@@ -219,6 +225,24 @@ paraules[grepl(regex,paraules)]
 trobat <- regexec(regex, text1)
 trobat
 substr(text1, trobat[[1]], trobat[[1]] + attr(trobat[[1]], "match.length") - 1)
+
+
+#### EXERCICIS 1 #### 
+# Treballarem amb el text de l'Auca del Senyor Esteve...
+# Està en el fitxer "pg_AucaDelSenyorEsteve.txt"
+
+# 1- Carrega el fitxer de text i ajusta'l de forma que només hi hagi
+# el contingut de l'obra en una variable de text.
+
+# 2- Quantes paraules hi ha a l'obra?
+
+# 3- Quantes paraules diferents hi ha?
+
+# 4- Llista (sense repeticions) les paraules que tenen una c trencada?
+
+# 5- Quina és la paraula més freqüent?
+
+# 6- Quina és la paraula més llarga que apareix a l'obra?
 
 
 #### TÈCNIQUES BASADES EN LA BOSSA DE PARAULES ####
@@ -374,25 +398,6 @@ ap_top_terms %>%
 # per exemple skmeans.
 
 
-#### EXERCICIS 1 #### 
-# Treballarem amb el text de l'Auca del Senyor Esteve...
-# Està en el fitxer "pg_AucaDelSenyorEsteve.txt"
-
-# 1- Carrega el fitxer de text i ajusta'l de forma que només hi hagi
-# el contingut de l'obra en una variable de text.
-
-# 2- Quantes paraules hi ha a l'obra?
-
-# 3- Quantes paraules diferents hi ha?
-
-# 4- Quina és la paraula més freqüent?
-
-# 5- Quina és la paraula més llarga que apareix a l'obra?
-
-# 6- Crea un núvol de paraules que mostrin les paraules més freqüents de
-#    4 o més lletres
-
-
 #### FUNCIONS DE PROCESSAMENT DE LLENGUATGE NATURAL ####
 ## Identificació d'idioma ####
 barc <- readLines("barcelona.txt", encoding = "UTF-8")
@@ -495,6 +500,20 @@ hunspell_check(words)
 paraules <- c("cervesa", "bi", "caba")
 hunspell_check(paraules, dict=dictionary("ca.dic"))
 hunspell_suggest(paraules, dict=dictionary("ca.dic"))
+
+
+#### EXERCICIS 2 #### 
+# Continuem treballant amb el text de l'Auca del Senyor Esteve...
+# (fitxer "pg_AucaDelSenyorEsteve.txt")
+
+# 7- Crea un núvol de paraules que mostrin les paraules més freqüents de
+#    4 o més lletres
+
+# 8- Crea un núvol de paraules que mostrin les paraules més freqüents de
+#    4 o més lletres
+
+# 9- Crea un gràfic de xarxa que mostri les relacions entre les principals
+#    paraules que apareixen en el text
 
 
 #### REFERÈNCIES ####

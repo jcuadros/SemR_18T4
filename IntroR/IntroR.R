@@ -23,6 +23,18 @@ help(package="stats")
 # La cerca es fa en els paquets instal·lats.
 
 
+#### GESTIÓ MÍNIMA DE PAQUETS #### 
+# Llista els paquets instal·lats
+library()
+# Llista els paquets en memòria (base inclosos)
+(.packages()
+
+# Instal·la un paquet
+install.packages("carData") 
+# Carrega un paquet en memòria
+library("carData")
+
+
 #### DADES BÀSIQUES #### 
 ## Numeric
 a <- 2
@@ -36,7 +48,7 @@ print(b, digits = 10)
 a+b
 a-b
 a*b
-a^b
+a^b # O a**b
 a/b
 
 ## Integer
@@ -52,6 +64,7 @@ class(n + 1)
 ## Character
 a <- "aaa"
 b <- "bbb"
+class(a)
 paste(a, b, "hola")
 paste(a, b, "hola", sep = ", ")
 paste(a, b, "hola", sep = "")
@@ -224,6 +237,9 @@ dfTest2 <- dfTest1[,c(1,3)]
 dfTest2
 
 dfTest2 <- dfTest1[-3,-2]
+dfTest2
+
+dfTest2 <- dfTest1[,-c(1,3)]
 dfTest2
 
 # ... per noms
