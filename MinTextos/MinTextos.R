@@ -1,7 +1,7 @@
 ##=========================================================================##
 ##                                                                         ##
 ##  Introdució a la mineria de textos amb R                                ##
-##  @authors: Jordi Cuadros, Francesc Martori, Vanessa Serrano             ##
+##  @authors: Jordi Cuadros, Vanessa Serrano, Francesc Martori             ##
 ##                                                                         ##
 ##=========================================================================##
 
@@ -524,5 +524,6 @@ hunspell_suggest(paraules, dict=dictionary("ca.dic"))
 # https://cran.r-project.org/web/views/NaturalLanguageProcessing.html
 # https://www.tidytextmining.com/
 # https://cran.r-project.org/web/packages/hunspell/vignettes/intro.html
+# https://nlp.stanford.edu/IR-book/html/htmledition/irbook.html
 
 
