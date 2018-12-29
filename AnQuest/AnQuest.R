@@ -1,14 +1,14 @@
 ##=========================================================================##
 ##                                                                         ##
 ##  Anàlisi de qüestionaris amb R                                          ##
-##  @authors: Jordi Cuadros, Vanessa Serrano, Francesc Martori             ##
+##  @authors: Jordi Cuadros, Vanessa Serrano                               ##
 ##                                                                         ##
 ##=========================================================================##
 
 options(install.packages.check.source = "no")
 
 pckgs<-c("psych","tidyverse", "ggthemes","RColorBrewer",
-         "ShinyItemAnalysis","corrplot")
+         "ShinyItemAnalysis","corrplot","tm","wordcloud")
 pckgs2Install<-pckgs[!(pckgs %in% library()$results[,1])]
 pckgs2Load<-pckgs[!(pckgs %in% (.packages()))]
 for(pckg in pckgs2Install) {install.packages(pckg,repos="https://cloud.r-project.org/",
@@ -52,8 +52,32 @@ for(pckg in pckgs2Load) {library(pckg,character.only = TRUE)}
 dadesSiA <- read.table("2013sleep.txt", header=TRUE, stringsAsFactors = TRUE,
                        sep="\t", quote="")
 
+
 ### Respostes assaig ####
 # Cal convertir-les a categòriques o aplicar tècniques de mineria de textos
+# Per exemple, es poden visualitzar les respostes addicionals a la pregunta 43
+# usant un núvol de paraules.
+# How much total time per day did you spend sitting during each of the following 
+# activities in the past 7 days:
+#   G. Something else (SPECIFY)
+
+resp43g <- paste(dadesSiA$Q43AGOT1,dadesSiA$Q43AGOT2,dadesSiA$Q43AGOT3,
+                 sep=" ", collapse=" ")
+
+resp43g <- tolower(resp43g)
+resp43g <- gsub("[^[:print:]]"," ", resp43g)
+resp43g <- gsub("[[:punct:]]"," ", resp43g)
+resp43g <- gsub("\\<\\w{0,3}\\>"," ", resp43g)
+resp43g <- gsub("\\s{2,}"," ", resp43g)
+
+resp43g <- removeWords(resp43g, gsub("[[:punct:]]"," ", stopwords("SMART")))
+
+corpus43g <- VCorpus(VectorSource(resp43g))
+tdm43g <- TermDocumentMatrix(corpus43g)
+frequent <- findMostFreqTerms(tdm43g, n = 100)
+wordcloud(names(frequent$`1`),frequent$`1`,rot.per=0,
+          colors=brewer.pal(4,"Spectral"),random.order = FALSE)
+
 
 ### Respostes nominals ####
 # Treballem per exemple amb les respostes a la pregunta S2 (qs2)
@@ -152,7 +176,9 @@ ggplot(tfreqS2oDF,aes(x=Resposta, y=FreqAbs, fill=Sel)) +
 
 ### Respostes dicotòmiques ####
 # Prenem com a exemple la pregunta 15...
-# Thinking about the past two weeks, does your current work schedule or typical weekday routine, including your duties at home, allow you to get adequate sleep?
+# Thinking about the past two weeks, does your current work schedule or 
+# typical weekday routine, including your duties at home, allow you to get 
+# adequate sleep?
 #   01 Yes
 #   02 No
 #   98 Refused
@@ -198,7 +224,8 @@ ggplot(df15o,aes(x=1, y=FreqRel, fill=Response)) +
 
 ### Respostes dicotòmiques (múltiples) ####
 # Prenem com a exemple les preguntes 20-23...
-# 20. Do you snore loudly? Loudly, meaning louder than talking or loud enough to be heard through a closed door?
+# 20. Do you snore loudly? Loudly, meaning louder than talking or loud enough to be 
+# heard through a closed door?
 # 21. Do you often feel tired, fatigued or sleepy during the day?
 # 22. Has anyone observed you stop breathing during your sleep?
 # 23. Do you have or are you being treated for high blood pressure?
@@ -280,7 +307,6 @@ ggplot() +
   scale_x_discrete(limits = rev(levels(df20ss$Question)))+
   scale_fill_manual(values=rev(brewer.pal(3,"RdBu")))
 
-
 # En función de les preguntes pot ser convenient ordenar per 
 # freqüència de la resposta positiva.
 # Per exemple, en una pregunta de selecció múltiple. 
@@ -292,23 +318,44 @@ ggplot() +
 # S'usen les mateixes lògiques que les presentades per a una 
 # dicotòmica encara que amb més nivells per a cada factor.
 
+
 ### Respostes quantitatives discretes ####
-# Quan nombre de valors diferents és petit, es poden tractar com a ordinals.
-# Quan el nombre de valors diferents és gran, sovint es tracten com a continues
+# Quan nombre de valors diferents és petit, es poden tractar 
+# com a factors ordenats.
+# Quan el nombre de valors diferents és gran, sovint es tracten
+# com a numèriques.
 
 # Fixem-nos en la pregunta S1
 # S1. What is your age?
 respS1 <- dadesSiA$qs1
+class(respS1)
 
+# Tractant-la com a numérica (continua)...
+# Estadístics paramètrics
+summary(respS1)
+mean(respS1, na.rm = TRUE)
+sd(respS1, na.rm = TRUE)
+
+# Boxplot
+ggplot(NULL, aes(x=1, y=respS1)) +
+  geom_boxplot() +
+  labs(y="Edat", x = NULL)+
+  theme_classic() + 
+  coord_flip() +
+  theme(axis.line.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y= element_blank())
+
+# Tractant-la com a factor ordenat...
 # Estadístics no paramètrics
 fivenum(respS1)
 median(respS1)
+IQR(respS1)
 quantile(respS1,(1:19)/20)
 quantile(respS1,c(0.01,0.99))
 
 # Diagrama de barres
-
-# Compte amb els nivells absents
+# Compte amb els nivells absents...
 respS1f <- factor(respS1, levels=min(respS1):max(respS1))
 
 ggplot(NULL,aes(x=factor(respS1))) +
@@ -358,7 +405,8 @@ ggplot(NULL, aes(x=resp5, y=..density..)) +
 # Boxplot
 ggplot(NULL, aes(x=1, y=resp5)) +
   geom_boxplot(col="black",outlier.shape = NA,width=.05) +
-  geom_jitter(alpha=.2, shape=21,width=.2, height=.25) +
+  geom_jitter(alpha=.2, shape=21, width=.2, height=.25, 
+              color="green") +
   labs(y="Hores de son", x = NULL)+
   coord_flip()+
   theme_classic() + 
@@ -401,7 +449,8 @@ ggplot(df5i6,aes(x=resp5,y=resp6)) +
 
 ### Relació entre qualitatives ####
 # Per exemple, entre la 20 i la 21
-# 20. Do you snore loudly? Loudly, meaning louder than talking or loud enough to be heard through a closed door?
+# 20. Do you snore loudly? Loudly, meaning louder than talking or loud enough to 
+# be heard through a closed door?
 # 21. Do you often feel tired, fatigued or sleepy during the day?
 #   01 Yes
 #   02 No
@@ -491,9 +540,56 @@ ggplot(df5i21, aes(x=resp5, y=..density..)) +
 
 
 #### EXERCICIS 1 #### 
-# 
+# Seguim amb el qüestionari 'Sleep in America 2013' 
 
-# 1- 
+# 1- Presenta els resultats de la pregunta 26
+# 26. Do you drink alcoholic beverages?
+#    01 Yes
+#    02 No
+#    98 DO NOT READ: Refused
+#    99 DO NOT READ: Don’t know/Not sure
+
+
+# 2- Presenta els resultats de la pregunta 30
+# During the past two weeks, how would you rate your overall sleep quality? 
+# Would you say…
+#    01 Very good,
+#    02 Fairly good,
+#    03 Fairly bad, or
+#    04 Very bad
+#    98 DO NOT READ: Refused
+#    99 DO NOT READ: Don’t know/Not sure
+
+
+# 3- Presenta els resultats de la pregunta 42
+# How much time per day did you spend sitting in the past 7 days? Your best 
+# estimate is fine.
+# DO NOT ACCEPT RANGES.
+# __ __ Hours per day [Range: 00-24]
+# __ __ Minutes per day [Range: 00-59]
+# 98 DO NOT READ: Refused
+# 99 DO NOT READ: Don’t know/Not sure
+
+
+# 4- Estudia la relació entre la pregunta 17 i la pregunta 29
+# ---
+# 17. Thinking about the past two weeks, how many minutes, on most worknights or 
+# weeknights, does it take you to fall asleep? Would you say…(READ LIST.)
+#    01 Less than 5 minutes,
+#    02 5 up to 10 minutes,
+#    03 10 up to 15 minutes,
+#    04 15 up to 30 minutes,
+#    05 30 up to 45 minutes,
+#    06 45 minutes up to 1 hour, or
+#    07 1 hour or more?
+#    96 DO NOT READ: Depends/Varies
+#    98 DO NOT READ: Refused
+#    99 DO NOT READ: Don’t know/Not sure
+# ---
+# 29. Thinking about the last two weeks, how many 12 ounce servings of caffeinated
+# beverages, such as soda, soft drinks, coffee, tea, and energy drinks do you drink
+# on an average weekday or workday …(READ LIST. RECORD NUMBER FOR EACH BELOW. 
+# DO NOT ACCEPT RANGES. 98=REFUSED; 99=DON’T KNOW; 00=NONE; 97=LESS THAN ONE.)
 
 
 #### ANÀLISI DEL QÜESTIONARI ####
@@ -505,7 +601,7 @@ ggplot(df5i21, aes(x=resp5, y=..density..)) +
 # pretenen representar la variable d'interès.
 
 # Com en d'altres àmbits del coneixement, és important comprovar que la mesura
-# és adequada i establir criteris que permetin anar millorar els instruments
+# és adequada i establir criteris que permetin anar millorant els instruments
 # de mesura.
 
 
@@ -577,8 +673,10 @@ omega(qsimul[,2:5],nfactors = 1)
 # - Validesa de constructe
 # - Validesa aparent
 
+
 ### Validesa de contingut ####
 # Sol avaluar-se qualitativament a partir de mètodes basats en d'experts
+
 
 ### Validesa concurrent ####
 # S'avalua com la correlació entre la puntuació del constructe i el valor 
@@ -624,7 +722,7 @@ cor.test(as.numeric(med$StudySuccess),med$total)
 dades <- get(data(bfi))
 
 # Dimensionalitat
-eigv <- eigen(cor(na.omit(dades[,1:25])))$values
+(eigv <- eigen(cor(na.omit(dades[,1:25])))$values)
 sum(eigv > 1)
 
 ggplot(NULL, aes(x=1:25,y=eigv, group=1)) +
@@ -660,6 +758,10 @@ corrplot(abs(cor(na.omit(dades[,1:25]))),order="hclust",hclust.method="ward.D2",
 # - l'index de fiabilidad, i
 # - l'índex de validesa
 
+# En preguntes d'opció múltiple amb resposta correcta, també es realitza amb 
+# l'anàlisi dels distractors.
+
+
 # Reprendre'm per a aquestes anàlisis la forma A del qüestionari simulat
 qsimul <- read.table("QSimulat.txt",sep="\t",header=TRUE)
 qsimul$ta <- qsimul$T_A_Q1 + qsimul$T_A_Q2 + qsimul$T_A_Q3 + qsimul$T_A_Q4
@@ -684,6 +786,7 @@ mm <- round(nrow(qsimul_ao) * .5)
 (indDis <- (colMeans(qsimul_ao[nrow(qsimul_ao):(nrow(qsimul_ao)-mm+1),1:4]) -
               colMeans(qsimul_ao[1:mm,1:4])) / 5)
 
+
 ### Índex d'homogeïnetat ####
 # S'analitza a partir de la correlació amb el constructe, o la resta d'elements
 # del constructe
@@ -702,24 +805,30 @@ mm <- round(nrow(qsimul_ao) * .5)
 # variable d'interès.
 
 
+### Anàlisi dels distractors ####
+# Es tracta d'estudiar les freqüències relatives d'aparició de les respostes
+# incorrectes. Es recomana revisar els distractors de freqüencia inferior al
+# 5 % i aquells més freqüents que la resposta correcta.
+
+
 #### SHINY PER A L'ANÀLISI DE QÜESTIONARIS ###
 startShinyItemAnalysis()
 
 
 #### EXERCICIS 2 #### 
 # 
+# 5- Analitza la fiabilitat, la dimensionalitat i les característiques dels ítems 
+# del qüestionari Homeostasis Concept Inventory (HCI). El paquet ShinyItemAnalysis 
+# inclou dades de respostes al mateix
 
-# 7- 
-
+help("HCI")
+help("HCItest")
+help("HCIkey")
 
 
 #### REFERÈNCIES ####
 
-# http://sphweb.bumc.bu.edu/otlt/MPH-Modules/BS/DataPresentation/DataPresentation7.html
-# http://www.montana.edu/msse/Data_analysis/Likert%20Survey%20Graphs.pdf
-# Colors: https://www.nceas.ucsb.edu/~frazier/RSpatialGuides/colorPaletteCheatsheet.pdf
-# https://blog.datawrapper.de/divergingbars/
 # http://biostat.mc.vanderbilt.edu/wiki/pub/Main/StatGraphCourse/graphscourse.pdf
-
 # https://cehs01.unl.edu/aalbano/intromeasurement/main.html
+# https://www.personality-project.org/readings-measurement.html#psycho
 
